@@ -1,4 +1,5 @@
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -49,19 +50,20 @@ public class ClassContainer {
         }
     }
 
-    public void addClass(String name, int capacity) {
+    public boolean addClass(String name, int capacity) {
         Optional<String> existingKey = groups.keySet().stream()
                 .filter(key -> key.equalsIgnoreCase(name))
                 .findFirst();
         if (existingKey.isPresent()) {
             System.out.println("Grupa o nazwie \"" + existingKey.get() + "\" już istnieje.");
-            return;
+            return false;
         }
         groups.put(name, new ClassEmployee(name, capacity));
         System.out.println("Dodano grupę: " + name + " o pojemności " + capacity);
+        return true;
     }
 
-    public void removeClass(String name) {
+    public boolean removeClass(String name) {
         String keyToRemove = groups.keySet().stream()
                 .filter(key -> key.equalsIgnoreCase(name))
                 .findFirst()
@@ -69,9 +71,11 @@ public class ClassContainer {
         if (keyToRemove != null) {
             groups.remove(keyToRemove);
             System.out.println("Usunięto grupę: " + keyToRemove);
+            return true;
         } else {
             System.out.println("Nie znaleziono grupy o nazwie: " + name);
         }
+        return false;
     }
 
     public List<String> findEmpty() {
@@ -99,6 +103,10 @@ public class ClassContainer {
                 .map(Map.Entry::getValue)
                 .findFirst()
                 .orElse(null);
+    }
+
+    public Map<String, ClassEmployee> getGroupsView() {
+        return Collections.unmodifiableMap(groups);
     }
 
     public List<String> getGroupsInOrder() {
@@ -173,6 +181,37 @@ public class ClassContainer {
         groups.entrySet().forEach(entry -> newMap.put(entry.getKey(), entry.getValue()));
         groups = newMap;
         currentMode = newMode;
+    }
+
+    public boolean renameGroup(String currentName, String newName) {
+        if (currentName == null || newName == null || newName.isBlank()) {
+            return false;
+        }
+
+        if (groups.keySet().stream().anyMatch(key -> key.equalsIgnoreCase(newName))) {
+            return false;
+        }
+
+        String keyToUpdate = groups.keySet().stream()
+                .filter(key -> key.equalsIgnoreCase(currentName))
+                .findFirst()
+                .orElse(null);
+        if (keyToUpdate == null) {
+            return false;
+        }
+
+        ClassEmployee group = groups.remove(keyToUpdate);
+        group.setGroupName(newName);
+        groups.put(newName, group);
+        return true;
+    }
+
+    public boolean updateGroupCapacity(String name, int newCapacity) {
+        ClassEmployee group = getGroup(name);
+        if (group == null) {
+            return false;
+        }
+        return group.setMaxCapacity(newCapacity);
     }
 
     public void demonstrateOrderDifferences() {

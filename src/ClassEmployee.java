@@ -4,8 +4,8 @@ import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 public class ClassEmployee {
-    private final String groupName;
-    private final int maxCapacity;
+    private String groupName;
+    private int maxCapacity;
     private final List<Employee> employees;
 
     public ClassEmployee(String groupName, int maxCapacity) {
@@ -112,6 +112,25 @@ public class ClassEmployee {
 
     public String getGroupName() {
         return groupName;
+    }
+
+    public void setGroupName(String groupName) {
+        this.groupName = groupName;
+    }
+
+    public boolean setMaxCapacity(int maxCapacity) {
+        if (maxCapacity < employees.size() || maxCapacity <= 0) {
+            return false;
+        }
+        this.maxCapacity = maxCapacity;
+        return true;
+    }
+
+    public double getFillPercentage() {
+        if (maxCapacity == 0) {
+            return 0.0;
+        }
+        return ((double) employees.size() / maxCapacity) * 100.0;
     }
 
     public List<Employee> getEmployees() {
